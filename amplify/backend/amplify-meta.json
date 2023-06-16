@@ -1,0 +1,60 @@
+{
+	"providers": {
+		"awscloudformation": {
+			"AuthRoleName": "amplify-sampleecommerce-prod-174824-authRole",
+			"UnauthRoleArn": "arn:aws:iam::423605031430:role/amplify-sampleecommerce-prod-174824-unauthRole",
+			"AuthRoleArn": "arn:aws:iam::423605031430:role/amplify-sampleecommerce-prod-174824-authRole",
+			"Region": "us-east-2",
+			"DeploymentBucketName": "amplify-sampleecommerce-prod-174824-deployment",
+			"UnauthRoleName": "amplify-sampleecommerce-prod-174824-unauthRole",
+			"StackName": "amplify-sampleecommerce-prod-174824",
+			"StackId": "arn:aws:cloudformation:us-east-2:423605031430:stack/amplify-sampleecommerce-prod-174824/5222fcb0-0b83-11ee-a967-0a1dd59b3175",
+			"AmplifyAppId": "dgdbx99wbc5ns"
+		}
+	},
+	"auth": {
+		"sampleecommerce135ab3af": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"dependsOn": [],
+			"customAuth": false
+		}
+	},
+	"storage": {
+		"ItemImages": {
+			"service": "S3",
+			"providerPlugin": "awscloudformation"
+		}
+	},
+	"function": {
+		"ProcessOrder": {
+			"build": true,
+			"providerPlugin": "awscloudformation",
+			"service": "Lambda",
+			"dependsOn": []
+		},
+		"CreateOrder": {
+			"build": true,
+			"providerPlugin": "awscloudformation",
+			"service": "Lambda",
+			"dependsOn": []
+		}
+	},
+	"api": {
+		"sampleecommerce": {
+			"service": "AppSync",
+			"providerPlugin": "awscloudformation",
+			"output": {
+				"authConfig": {
+					"additionalAuthenticationProviders": [],
+					"defaultAuthentication": {
+						"authenticationType": "AMAZON_COGNITO_USER_POOLS",
+						"userPoolConfig": {
+							"userPoolId": "authsampleecommerce135ab3af"
+						}
+					}
+				}
+			}
+		}
+	}
+}

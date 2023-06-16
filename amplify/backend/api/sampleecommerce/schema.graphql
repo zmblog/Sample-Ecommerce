@@ -1,0 +1,83 @@
+type Item
+  @model(subscriptions: null)
+  @auth(
+    rules: [
+      # allow admins to create, update and delete Items
+      { allow: groups, groups: ["Admin"] }
+      # allow all authenticated users to view Items
+      { allow: private, operations: [read] }
+      # allow all guest users (not authenticated) to view Items
+      { allow: public, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  description: String
+  image: String
+  
+  price: Float
+  orders: [ItemOrder] @connection(keyName: "byItem", fields: ["id"])
+}
+
+type ItemOrder
+  @model(queries: null, subscriptions: null)
+  @key(name: "byItem", fields: ["item_id", "order_id"])
+  @key(name: "byOrder", fields: ["order_id", "item_id"])
+  @auth(
+    rules: [
+      # allow admins to create itemorders for customers by using customer email in lambda
+      { allow: owner, identityClaim: "email", ownerField: "customer" }
+      { allow: groups, groups: ["Admin"] }
+    ]
+  ) {
+  id: ID!
+  Item_id: ID!
+  order_id: ID!
+  Item: Item @connection(fields: ["Item_id"])
+  order: Order @connection(fields: ["order_id"])
+}
+
+type Order
+  @model(subscriptions: null)
+  @auth(
+    rules: [
+      # only owner can see his orders
+      { allow: owner, identityClaim: "email", ownerField: "customer" }
+      # allow admins to view orders
+      { allow: groups, groups: ["Admin"] }
+    ]
+  )
+  @key(name: "byUser", fields: ["user"]) {
+  id: ID!
+  user: String!
+  date: String
+  total: Float
+  Items: [ItemOrder] @connection(keyName: "byOrder", fields: ["id"])
+}
+
+enum OrderStatus {
+  SUCCESS
+  FAILED
+}
+
+input CartItem {
+  id: ID!
+  title: String
+  image: String
+  price: Float
+  amount: Int
+}
+
+input ProcessOrderInput {
+  id: ID!
+  cart: [CartItem]
+  total: Float!
+  token: String!
+  address: String
+}
+
+type Mutation {
+  processOrder(input: ProcessOrderInput!): OrderStatus
+    @function(name: "processPayment-${env}")
+    @function(name: "createOrder-${env}")
+}
